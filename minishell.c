@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 12:49:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/19 18:41:34 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/22 14:37:11 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,38 +57,53 @@ void	exec_echo(char **cmd)
 		printf("%s", "\n");
 }
 
-int	exec_cd(/*t_sh *sh, */char **cmd)
+// int	exec_cd(/*t_sh *sh, */char **cmd)
+// {
+// 	int		i;
+// 	char	*cwd;
+
+// 	i = 0;
+
+// 	while (cmd[i])
+// 		i++;
+// 	if (i > 1)
+// 		return (printf("minishell> cd: too many arguments\n"));
+// 	cwd = getcwd(NULL, 0);
+// 	if (!cwd)
+// 		printf("")
+// 	printf("%s\n", cwd);
+// 	return (0);
+// }
+
+void	exec_pwd(void)
 {
-	int		i;
 	char	*cwd;
 
-	i = 0;
-
-	while (cmd[i])
-		i++;
-	if (i > 1)
-		return (printf("minishell> cd: too many arguments\n"));
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
 	{
-		printf("")
+		printf("minishell> getcwd() error\n");
+		return ;
 	}
-	printf("%s\n", cwd);
-	return (0);
+	printf("minishell> %s\n", cwd);
+	free(cwd);
 }
 
 void	exec_builtin(/*t_sh *sh, */char **cmd)
 {
 	if (ft_strcmp(cmd[0], "echo") == 0)
 		exec_echo(cmd);
-	else if (ft_strcmp(cmd[0], "cd") == 0)
-		exec_cd(/*sh, */cmd);
+	// else if (ft_strcmp(cmd[0], "cd") == 0)
+	// 	exec_cd(/*sh, */cmd);
+	else if (ft_strcmp(cmd[0], "pwd") == 0)
+		exec_pwd();
 }
 
 
 int	is_builtin(char *cmd)
 {
-	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0);
+	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0
+		|| ft_strcmp(cmd, "pwd") == 0);
 }
 
 int	main(void)
