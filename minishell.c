@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 12:49:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/22 14:37:11 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:29:20 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,62 +57,161 @@ void	exec_echo(char **cmd)
 		printf("%s", "\n");
 }
 
-// int	exec_cd(/*t_sh *sh, */char **cmd)
-// {
-// 	int		i;
-// 	char	*cwd;
+void	exec_env(char **cmd, t_env *env)
+{
+	print_env_list(env);
+}
 
-// 	i = 0;
-
-// 	while (cmd[i])
-// 		i++;
-// 	if (i > 1)
-// 		return (printf("minishell> cd: too many arguments\n"));
-// 	cwd = getcwd(NULL, 0);
-// 	if (!cwd)
-// 		printf("")
-// 	printf("%s\n", cwd);
-// 	return (0);
-// }
-
-void	exec_pwd(void)
+int	exec_pwd(void)
 {
 	char	*cwd;
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
-	{
-		printf("minishell> getcwd() error\n");
-		return ;
-	}
+		return (perror("minishell> getcwd() error"), 1);
 	printf("minishell> %s\n", cwd);
 	free(cwd);
+	return (0);
 }
 
-void	exec_builtin(/*t_sh *sh, */char **cmd)
+t_env	*get_env_var(t_env *env, char *var)
+{
+	t_env	*tmp;
+
+	if (!env)
+		return (NULL);
+	tmp = env;
+	while (tmp)
+	{
+		if (strcmp(tmp->id, var) == 0)
+			return (tmp);
+		tmp = tmp->next;
+	}
+	return (NULL);
+}
+
+void	env_var_m(t_env *env, t_env *new)
+{
+	t_env	*tmp;
+
+	if (!env)
+	{
+		env = new;
+		return ;
+	}
+	tmp = env;
+	while (tmp)
+	{
+		if (ft_strcmp(tmp->id, new->id) == 0)
+		{
+			tmp->value = new->value;
+			break ;
+		}
+		else
+			tmp = tmp->next;
+	}
+}
+
+void	set_env_var(t_env *env, char *id, char *value)
+{
+	t_env	*var;
+	t_env	*new;
+	char	*new_value;
+
+	new_value = ft_strdup(value);
+	if (!new_value)
+		return ;//(NULL);
+	var = get_env_var(env, id);
+	if (!var)
+	{
+		free(var->value);
+		var->value = new_value;
+		return ;//(0);
+	}
+	new = (t_env *)malloc(sizeof(t_env));
+	if (!new)
+		return ;//(NULL);
+	new->id = id;
+	new->value = value;
+	new->next = NULL;
+	env_var_m(env, new);
+}
+
+int	exec_cd(char **cmd, t_env *env)
+{
+	int		i;
+	t_env	*home_env;
+	char	*old_cwd;
+	char	*cwd;
+	char	*new_dir;
+
+	i = 0;
+	while (cmd[i])
+		i++;
+	if (i > 2)
+		return (ft_putendl_fd("minishell> cd: too many arguments",
+				STDERR_FILENO), 1);
+	old_cwd = getcwd(NULL, 0);
+	if (!old_cwd)
+		return (perror("minishell> getcwd() error"), 1);
+	if (i == 1 || ft_strcmp(cmd[1], "--") == 0)
+	{
+		home_env = get_env_var(env, "HOME");
+		if (!home_env || !home_env->value)
+			return (free(old_cwd), ("minishell> cd: HOME not set\n"), 1);
+		new_dir = home_env->value;
+		free(home_env);
+	}
+	else
+		new_dir = cmd[1];
+	if (chdir(new_dir) != 0)
+		return (free(old_cwd), perror("minishell> cd"), 1);
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return (free(old_cwd),
+			perror("minishell> cd: error retrieving current directory"), 1);
+	set_env_var(env, "OLDPWD", old_cwd);
+	set_env_var(env, "PWD", cwd);
+	return (0);
+}
+
+void	exec_builtin(char **cmd, t_env *env)
 {
 	if (ft_strcmp(cmd[0], "echo") == 0)
 		exec_echo(cmd);
-	// else if (ft_strcmp(cmd[0], "cd") == 0)
-	// 	exec_cd(/*sh, */cmd);
+	else if (ft_strcmp(cmd[0], "cd") == 0)
+		exec_cd(cmd, env);
 	else if (ft_strcmp(cmd[0], "pwd") == 0)
 		exec_pwd();
+	// else if (ft_strcmp(cmd[0], "export") == 0)
+	// 	exec_env(cmd, env);
+	// else if (ft_strcmp(cmd[0], "unset") == 0)
+	// 	exec_env(cmd, env);
+	else if (ft_strcmp(cmd[0], "env") == 0)
+		exec_env(cmd, env);
+	// else if (ft_strcmp(cmd[0], "exit") == 0)
+	// 	exec_env(cmd, env);
 }
 
 
 int	is_builtin(char *cmd)
 {
 	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0
-		|| ft_strcmp(cmd, "pwd") == 0);
+		|| ft_strcmp(cmd, "pwd") == 0 || ft_strcmp(cmd, "export") == 0
+		|| ft_strcmp(cmd, "unset") == 0 || ft_strcmp(cmd, "env") == 0
+		|| ft_strcmp(cmd, "exit"));
 }
 
-int	main(void)
+int	main(int argc, char **argv, char **env)
 {
+	t_env	*env_list;
 	char	*input;
 	char	*prompt = "minishell> ";
 	char	**args;
 	int		i;
 
+	(void)argv[argc];
+	env_list = convert_env_to_list(env);
 	while (1)
 	{
 		input = readline(prompt);
@@ -121,6 +220,7 @@ int	main(void)
 		if (ft_strcmp(input, "exit") == 0)
 		{
 			free(input);
+			env_free(env_list);
 			break ;
 		}
 
@@ -131,7 +231,7 @@ int	main(void)
 			args[++i] = strtok(NULL, " ");
 
 		if (args[0] && is_builtin(args[0]))
-			exec_builtin(args);
+			exec_builtin(args, env_list);
 		else
 			printf("Command not found: %s\n", args[0]);
 

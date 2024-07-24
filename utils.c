@@ -6,11 +6,13 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:26:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/19 18:34:18 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/24 15:48:09 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+
 
 static void	ft_putchar_fd(char c, int fd)
 {
@@ -66,6 +68,24 @@ int	ft_strncmp(const char *s1, const char *s2, int n)
 	if (i == n)
 		return (0);
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+}
+
+char	*ft_strdup(const char *src)
+{
+	char	*dest;
+	size_t	i;
+
+	dest = (char *)malloc((ft_strlen(src) + 1) * sizeof(char));
+	if (!dest)
+		return (NULL);
+	i = 0;
+	while (src[i])
+	{
+		dest[i] = src [i];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
 }
 
 //split

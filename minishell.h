@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 16:52:19 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/22 14:23:31 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/24 16:22:34 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 int		ft_strncmp(const char *s1, const char *s2, int n);
 int		ft_strcmp(const char *s1, const char *s2);
 void	ft_putendl_fd(char *s, int fd);
-//void	get_env_var(t_sh *sh, char **env, size_t i);
+char	*ft_strdup(const char *src);
 
 typedef struct s_list
 {
@@ -78,5 +78,20 @@ typedef struct		s_sh
 	char		*target_file;
 	int			stdin_bkp;
 }					t_sh;
+
+typedef struct s_env
+{
+	char			*id;
+	char			*value;
+	struct s_env	*next;
+}				t_env;
+
+// Function prototypes
+t_env   *env_create(char *env_entry);
+void    env_free(t_env *env_list);
+t_env   *convert_env_to_list(char **env);
+char    *env_get_id(char *env_entry);
+char    *env_get_value(char *env_entry);
+void print_env_list(t_env *env_list);
 
 #endif
