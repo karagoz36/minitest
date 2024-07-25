@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 12:49:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/24 19:29:20 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:49:37 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,45 @@ void	exec_echo(char **cmd)
 	if (nl)
 		printf("%s", "\n");
 }
+void	print_env(t_env *env)
+{
+	t_env	*tmp;
+
+	printf("PRINT\n");
+	tmp = env;
+	while (tmp)
+	{
+		printf("%s=%s\n", tmp->id, tmp->value);
+		tmp = tmp->next;
+	}
+}
 
 void	exec_env(char **cmd, t_env *env)
 {
-	print_env_list(env);
+	if (cmd[1])
+	{
+		printf("env: '%s': No such file or directory\n", cmd[1]);
+		return ;
+	}
+	print_env(env);
 }
 
-int	exec_pwd(void)
+int	exec_pwd(char **cmd)
 {
 	char	*cwd;
+	int		i;
 
+	i = 0;
+	if (cmd[1] && cmd[1][0] == '-')
+	{
+		while (cmd[1][i])
+		{
+			if (cmd[1][i] != '-')
+				return (printf("minishell> pwd: %c%c: invalid option\n\
+						pwd: usage: pwd [-LP]", cmd[1][0], cmd[1][1]), 1);
+			i++;
+		}
+	}
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
 		return (perror("minishell> getcwd() error"), 1);
@@ -83,33 +112,29 @@ t_env	*get_env_var(t_env *env, char *var)
 	tmp = env;
 	while (tmp)
 	{
-		if (strcmp(tmp->id, var) == 0)
+		if (ft_strcmp(tmp->id, var) == 0)
 			return (tmp);
 		tmp = tmp->next;
 	}
 	return (NULL);
 }
 
-void	env_var_m(t_env *env, t_env *new)
+void	env_var_add(t_env **head_env, t_env *new)
 {
 	t_env	*tmp;
 
-	if (!env)
+	if (!head_env || !new)
+		return ;//exit
+	if (!*head_env)
 	{
-		env = new;
+		*head_env = new;
+		printf("%s=%s\n", (*head_env)->id, (*head_env)->value);
 		return ;
 	}
-	tmp = env;
-	while (tmp)
-	{
-		if (ft_strcmp(tmp->id, new->id) == 0)
-		{
-			tmp->value = new->value;
-			break ;
-		}
-		else
-			tmp = tmp->next;
-	}
+	tmp = *head_env;
+	while (tmp->next)
+		tmp = tmp->next;
+	tmp->next = new;
 }
 
 void	set_env_var(t_env *env, char *id, char *value)
@@ -122,19 +147,49 @@ void	set_env_var(t_env *env, char *id, char *value)
 	if (!new_value)
 		return ;//(NULL);
 	var = get_env_var(env, id);
-	if (!var)
+	if (var)
 	{
 		free(var->value);
 		var->value = new_value;
-		return ;//(0);
 	}
-	new = (t_env *)malloc(sizeof(t_env));
-	if (!new)
-		return ;//(NULL);
-	new->id = id;
-	new->value = value;
-	new->next = NULL;
-	env_var_m(env, new);
+	else
+	{
+		new = (t_env *)malloc(sizeof(t_env));
+		if (!new)
+			return ;//(NULL);
+		new->id = ft_strdup(id);
+		new->value = new_value;
+		new->next = NULL;
+		env_var_add(&(env), new);
+	}
+}
+
+void	exec_export(char **cmd, t_env *env)
+{
+	int		i;
+	t_env	*new;
+	char	*eq_sign;
+
+
+	if (!cmd[1])
+	{
+		print_env(env);
+		return ;
+	}
+	i = 1;
+	while (cmd[i])
+	{
+		eq_sign = NULL;
+		eq_sign = ft_strchr(cmd[1], '=');
+		if (eq_sign)
+		{
+			*eq_sign = '\0';
+			set_env_var(env, cmd[i], eq_sign + 1);
+			*eq_sign = '=';
+		}
+		i++;
+	}
+
 }
 
 int	exec_cd(char **cmd, t_env *env)
@@ -158,7 +213,7 @@ int	exec_cd(char **cmd, t_env *env)
 	{
 		home_env = get_env_var(env, "HOME");
 		if (!home_env || !home_env->value)
-			return (free(old_cwd), ("minishell> cd: HOME not set\n"), 1);
+			return (free(old_cwd), printf("minishell> cd: HOME not set\n"), 1);
 		new_dir = home_env->value;
 		free(home_env);
 	}
@@ -182,9 +237,9 @@ void	exec_builtin(char **cmd, t_env *env)
 	else if (ft_strcmp(cmd[0], "cd") == 0)
 		exec_cd(cmd, env);
 	else if (ft_strcmp(cmd[0], "pwd") == 0)
-		exec_pwd();
-	// else if (ft_strcmp(cmd[0], "export") == 0)
-	// 	exec_env(cmd, env);
+		exec_pwd(cmd);
+	else if (ft_strcmp(cmd[0], "export") == 0)
+		exec_export(cmd, env);
 	// else if (ft_strcmp(cmd[0], "unset") == 0)
 	// 	exec_env(cmd, env);
 	else if (ft_strcmp(cmd[0], "env") == 0)
@@ -199,7 +254,7 @@ int	is_builtin(char *cmd)
 	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0
 		|| ft_strcmp(cmd, "pwd") == 0 || ft_strcmp(cmd, "export") == 0
 		|| ft_strcmp(cmd, "unset") == 0 || ft_strcmp(cmd, "env") == 0
-		|| ft_strcmp(cmd, "exit"));
+		|| ft_strcmp(cmd, "exit") == 0);
 }
 
 int	main(int argc, char **argv, char **env)

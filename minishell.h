@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 16:52:19 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/24 16:22:34 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/25 13:53:01 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ int		ft_strncmp(const char *s1, const char *s2, int n);
 int		ft_strcmp(const char *s1, const char *s2);
 void	ft_putendl_fd(char *s, int fd);
 char	*ft_strdup(const char *src);
+char	*ft_strndup(const char *src, size_t n);
+char	*ft_strchr(const char *str, int c);
 
 typedef struct s_list
 {

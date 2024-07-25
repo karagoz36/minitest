@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:26:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/24 15:48:09 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/25 13:52:55 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,22 @@ int	ft_strncmp(const char *s1, const char *s2, int n)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
+char	*ft_strchr(const char *str, int c)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == (char) c)
+			return ((char *)&str[i]);
+		i++;
+	}
+	if (str[i] == (char) c)
+		return ((char *) &str[i]);
+	return (0);
+}
+
 char	*ft_strdup(const char *src)
 {
 	char	*dest;
@@ -80,6 +96,24 @@ char	*ft_strdup(const char *src)
 		return (NULL);
 	i = 0;
 	while (src[i])
+	{
+		dest[i] = src [i];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
+}
+
+char	*ft_strndup(const char *src, size_t n)
+{
+	char	*dest;
+	size_t	i;
+
+	dest = (char *)malloc(n * sizeof(char));
+	if (!dest)
+		return (NULL);
+	i = 0;
+	while (src[i] && i < n)
 	{
 		dest[i] = src [i];
 		i++;

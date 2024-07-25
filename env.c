@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 19:47:08 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/24 16:22:43 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/25 14:39:15 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,15 +102,4 @@ char *env_get_value(char *env_entry)
         return (NULL);
 
     return strdup(eq_sign + 1);
-}
-
-void print_env_list(t_env *env_list)
-{
-    t_env *temp = env_list;
-
-    while (temp)
-    {
-        printf("%s=%s\n", temp->id, temp->value);
-        temp = temp->next;
-    }
 }
