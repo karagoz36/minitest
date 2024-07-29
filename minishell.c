@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 12:49:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/29 16:31:14 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/29 17:01:10 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main(int argc, char **argv, char **env)
 		if (ft_strcmp(input, "exit") == 0)
 		{
 			free(input);
-			env_free(env);
+			env_free(sh->env);
 			break ;
 		}
 
@@ -44,7 +44,7 @@ int	main(int argc, char **argv, char **env)
 			args[++i] = strtok(NULL, " ");
 
 		if (args[0] && is_builtin(args[0]))
-			exec_builtin(args, env);
+			exec_builtin(args, sh->env);
 		else
 			printf("Command not found: %s\n", args[0]);
 

@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:42:05 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/29 16:17:18 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:48:58 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,6 +165,25 @@ int	exec_cd(char **cmd, t_env *env)
 	return (0);
 }
 
+int	env_remove(char	*arg, t_env **env)
+{
+
+}
+
+int	exec_unset(char **cmd, t_env *env)
+{
+	int	i;
+
+	i = 1;
+	while (cmd[i])
+	{
+		if (env_remove(cmd[i], &env))
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 void	exec_builtin(char **cmd, t_env *env)
 {
 	if (ft_strcmp(cmd[0], "echo") == 0)
@@ -175,12 +194,12 @@ void	exec_builtin(char **cmd, t_env *env)
 		exec_pwd(cmd);
 	else if (ft_strcmp(cmd[0], "export") == 0)
 		exec_export(cmd, env);
-	// else if (ft_strcmp(cmd[0], "unset") == 0)
-	// 	exec_env(cmd, env);
+	else if (ft_strcmp(cmd[0], "unset") == 0)
+		exec_unset(cmd, env);
 	else if (ft_strcmp(cmd[0], "env") == 0)
 		exec_env(cmd, env);
 	// else if (ft_strcmp(cmd[0], "exit") == 0)
-	// 	exec_env(cmd, env);
+	// 	exec_exit(cmd, env);
 }
 
 int	is_builtin(char *cmd)
