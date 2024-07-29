@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 16:52:19 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/25 13:53:01 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:44:31 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ void	ft_putendl_fd(char *s, int fd);
 char	*ft_strdup(const char *src);
 char	*ft_strndup(const char *src, size_t n);
 char	*ft_strchr(const char *str, int c);
+
+
 
 typedef struct s_list
 {
@@ -67,19 +69,37 @@ typedef struct s_shell
 }						t_shell;
 
 //alexi
-typedef struct		s_sh
+
+typedef struct		s_hash
 {
-	char		**key;
-	char		**value;
-	char		***cmd;
-	char		**path;
-	char		printed;
-	short		question_mark;
-	char		*redir;
-	int			fd[2];
-	char		*target_file;
-	int			stdin_bkp;
-}					t_sh;
+	char			*key;
+	void			*value;
+	char			*type;
+	struct s_hash	*top;
+	struct s_hash	*before;
+	struct s_hash	*next;
+	struct s_hash	*(*new)(char *, void *, char *);
+	void			(*add_front)(struct s_hash **, struct s_hash *);
+	void			(*add_back)(struct s_hash **, struct s_hash *);
+	void			(*del)(struct s_hash **);
+	void			(*del_all)(struct s_hash **);
+	void			*(*search)(struct s_hash *, char *);
+	struct s_hash	*(*find)(struct s_hash *, char *);
+	void			(*change)(struct s_hash *, char *, void *, char *);
+	size_t			(*len)(struct s_hash *);
+	void			(*print)(struct s_hash *, char *);
+	void			(*sort_key)(struct s_hash **, struct s_hash *);
+	void			(*rsort_key)(struct s_hash **, struct s_hash *);
+	void			(*sort_val)(struct s_hash **, struct s_hash *);
+	void			(*rsort_val)(struct s_hash **, struct s_hash *);
+}					t_hash;
+
+
+typedef struct		s_strhash
+{
+	char	*key;
+	char	*value;
+}					t_strhash;
 
 typedef struct s_env
 {
@@ -88,12 +108,33 @@ typedef struct s_env
 	struct s_env	*next;
 }				t_env;
 
-// Function prototypes
-t_env   *env_create(char *env_entry);
-void    env_free(t_env *env_list);
-t_env   *convert_env_to_list(char **env);
-char    *env_get_id(char *env_entry);
-char    *env_get_value(char *env_entry);
-void print_env_list(t_env *env_list);
+typedef struct	s_sh
+{
+	char		**key;
+	char		**value;
+	char		***cmd;
+	char		**path;
+	t_hash		*hash;
+	t_env		*env;
+	t_hash		*add;
+	char		printed;
+	short		question_mark;
+	char		*redir;
+	int			fd[2];
+	char		*target_file;
+	int			stdin_bkp;
+}				t_sh;
+
+// Env functions
+t_env	*get_env_var(t_env *env, char *var);
+void	env_var_add(t_env **head_env, t_env *new);
+void	set_env_var(t_env *env, char *id, char *value);
+t_env	*env_create(char *env_entry);
+t_env	*create_env_list(char **env);
+void	env_free(t_env *env_list);
+
+//builtin functions
+int		is_builtin(char *cmd);
+void	exec_builtin(char **cmd, t_env *env);
 
 #endif

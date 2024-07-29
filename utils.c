@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:26:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/25 13:52:55 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/29 14:53:47 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,15 @@ char	*ft_strndup(const char *src, size_t n)
 {
 	char	*dest;
 	size_t	i;
+	size_t	len;
 
-	dest = (char *)malloc(n * sizeof(char));
+	if (!src)
+		return (NULL);
+	if (ft_strlen(src) <= n)
+		len = ft_strlen(src);
+	else
+		len = n;
+	dest = (char *)malloc((len + 1) * sizeof(char));
 	if (!dest)
 		return (NULL);
 	i = 0;

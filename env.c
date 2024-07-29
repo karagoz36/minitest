@@ -5,101 +5,124 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/23 19:47:08 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/25 14:39:15 by tkaragoz         ###   ########.fr       */
+/*   Created: 2024/07/29 15:30:27 by tkaragoz          #+#    #+#             */
+/*   Updated: 2024/07/29 16:16:54 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_env *env_create(char *env_entry)
+t_env	*get_env_var(t_env *env, char *var)
 {
-    t_env *new_env;
-    char *eq_sign;
+	t_env	*tmp;
 
-    new_env = (t_env *)malloc(sizeof(t_env));
-    if (!new_env)
-        return (NULL);
-
-    eq_sign = strchr(env_entry, '=');
-    if (!eq_sign)
-    {
-        free(new_env);
-        return (NULL);
-    }
-
-    new_env->id = strndup(env_entry, eq_sign - env_entry);
-    new_env->value = strdup(eq_sign + 1);
-    new_env->next = NULL;
-
-    return (new_env);
+	if (!env)
+		return (NULL);
+	tmp = env;
+	while (tmp)
+	{
+		if (ft_strcmp(tmp->id, var) == 0)
+			return (tmp);
+		tmp = tmp->next;
+	}
+	return (NULL);
 }
 
-static void env_add_back(t_env **head, t_env *new_env)
+void	env_var_add(t_env **head_env, t_env *new)
 {
-    t_env *temp;
+	t_env	*tmp;
 
-    if (!head || !new_env)
-        return;
-
-    if (!*head)
-    {
-        *head = new_env;
-        return;
-    }
-
-    temp = *head;
-    while (temp->next)
-        temp = temp->next;
-
-    temp->next = new_env;
+	if (!head_env || !new)
+		return ;//exit
+	if (!*head_env)
+		*head_env = new;
+	else
+	{
+		tmp = (*head_env);
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = new;
+	}
 }
 
-void env_free(t_env *env_list)
+void	set_env_var(t_env *env, char *id, char *value)
 {
-    t_env *temp;
+	t_env	*var;
+	t_env	*new;
+	char	*new_value;
 
-    while (env_list)
-    {
-        temp = env_list;
-        env_list = env_list->next;
-        free(temp->id);
-        free(temp->value);
-        free(temp);
-    }
+	new_value = ft_strdup(value);
+	if (!new_value)
+		return ;//(NULL);139 euros TTC (taxe de séjour incluse)
+
+	var = get_env_var(env, id);
+	if (var)
+	{
+		free(var->value);
+		var->value = new_value;
+	}
+	else
+	{
+		new = (t_env *)malloc(sizeof(t_env));
+		if (!new)
+			return ;//(NULL);
+		new->id = ft_strdup(id);
+		new->value = new_value;
+		new->next = NULL;
+		env_var_add(&(env), new);
+	}
 }
 
-t_env *convert_env_to_list(char **env)
+t_env	*env_create(char *env_entry)
 {
-    t_env *env_list = NULL;
-    t_env *new_env;
-    int i = 0;
+	t_env	*new_env;
+	char	*eq_sign;
 
-    while (env[i])
-    {
-        new_env = env_create(env[i]);
-        if (new_env)
-            env_add_back(&env_list, new_env);
-        i++;
-    }
-
-    return env_list;
+	new_env = (t_env *)malloc(sizeof(t_env));
+	if (!new_env)
+		return (NULL);
+	eq_sign = ft_strchr(env_entry, '=');
+	if (!eq_sign)
+	{
+		free(new_env);
+		return (NULL);
+	}
+	new_env->id = ft_strndup(env_entry, eq_sign - env_entry);
+	new_env->value = ft_strdup(eq_sign + 1);
+	new_env->next = NULL;
+	return (new_env);
 }
 
-char *env_get_id(char *env_entry)
+t_env	*create_env_list(char **env)
 {
-    char *eq_sign = strchr(env_entry, '=');
-    if (!eq_sign)
-        return (NULL);
+	int		i;
+	t_env	*new;
+	t_env	*env_list;
 
-    return strndup(env_entry, eq_sign - env_entry);
+	env_list = NULL;
+	if (!env || !*env)
+		return (env_create("minishell=minishell"));
+	i = 0;
+	while (env[i])
+	{
+		new = env_create(env[i]);
+		if (!new)
+			return (NULL);
+		env_var_add(&env_list, new);
+		i++;
+	}
+	return (env_list);
 }
-
-char *env_get_value(char *env_entry)
+void	env_free(t_env *head)
 {
-    char *eq_sign = strchr(env_entry, '=');
-    if (!eq_sign)
-        return (NULL);
+	t_env	*tmp;
 
-    return strdup(eq_sign + 1);
+	while (head)
+	{
+		tmp = head;
+		head = head->next;
+		free(tmp->id);
+		free(tmp->value);
+		free(tmp);
+	}
 }
