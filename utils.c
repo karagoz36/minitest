@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 16:26:48 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/29 14:53:47 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:50:24 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static int	ft_strlen(const char *str)
 	return (i);
 }
 //
-static void	ft_putstr_fd(char *s, int fd)
+void	ft_putstr_fd(char *s, int fd)
 {
 	int	i;
 
@@ -86,6 +86,53 @@ char	*ft_strchr(const char *str, int c)
 	return (0);
 }
 
+long	ft_atoi(const char *str)
+{
+	long	number;
+	long	sign;
+	int		i;
+
+	number = 0;
+	sign = 1;
+	i = 0;
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			sign = -1;
+		i++;
+	}
+	while (str[i] <= '9' && str[i] >= '0')
+	{
+		number = (number * 10 + str[i] - '0');
+		i++;
+	}
+	return (sign * number);
+}
+
+int	ft_isnumeric(char *str)
+{
+	long	number;
+	int		i;
+
+	i = 0;
+	if (str[i] && str[i + 1] && (str[i] == '-' || str[i] == '+' ))
+		i++;
+	while (str[i])
+	{
+		if (str[i] > '9' || str[i] < '0')
+			return (0);
+		i++;
+	}
+	if (i > 11)
+		return (0);
+	number = ft_atoi(str);
+	if (number > 2147483647 || number < -2147483648)
+		return (0);
+	return (1);
+}
+
 char	*ft_strdup(const char *src)
 {
 	char	*dest;
@@ -104,11 +151,11 @@ char	*ft_strdup(const char *src)
 	return (dest);
 }
 
-char	*ft_strndup(const char *src, size_t n)
+char	*ft_strndup(const char *src, int n)
 {
 	char	*dest;
-	size_t	i;
-	size_t	len;
+	int		i;
+	int		len;
 
 	if (!src)
 		return (NULL);

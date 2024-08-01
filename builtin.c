@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:42:05 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/29 18:48:58 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/08/01 16:26:30 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,16 +99,15 @@ int	exec_pwd(char **cmd)
 	return (0);
 }
 
-void	exec_export(char **cmd, t_env *env)
+void	exec_export(char **cmd, t_env **env)
 {
 	int		i;
-	t_env	*new;
 	char	*eq_sign;
 
 
 	if (!cmd[1])
 	{
-		print_env(env);
+		print_env(*env);
 		return ;
 	}
 	i = 1;
@@ -127,7 +126,7 @@ void	exec_export(char **cmd, t_env *env)
 
 }
 
-int	exec_cd(char **cmd, t_env *env)
+int	exec_cd(char **cmd, t_env **env)
 {
 	int		i;
 	t_env	*home_env;
@@ -146,7 +145,7 @@ int	exec_cd(char **cmd, t_env *env)
 		return (perror("minishell> getcwd() error"), 1);
 	if (i == 1 || ft_strcmp(cmd[1], "--") == 0)
 	{
-		home_env = get_env_var(env, "HOME");
+		home_env = get_env_var(*env, "HOME");
 		if (!home_env || !home_env->value)
 			return (free(old_cwd), printf("minishell> cd: HOME not set\n"), 1);
 		new_dir = home_env->value;
@@ -167,24 +166,73 @@ int	exec_cd(char **cmd, t_env *env)
 
 int	env_remove(char	*arg, t_env **env)
 {
+	t_env	*target;
+	t_env	*pre_target;
 
+	if (!arg || !env || !*env)
+		return (0);
+	target = *env;
+	while (target && ft_strcmp(arg, target->id) != 0)
+	{
+		pre_target = target;
+		target = target->next;
+	}
+	if (target == *env)
+		*env = target->next;
+	else
+		pre_target->next = target->next;
+	node_free(target);
+	return (1);
 }
 
-int	exec_unset(char **cmd, t_env *env)
+int	exec_unset(char **cmd, t_env **env)
 {
 	int	i;
 
 	i = 1;
 	while (cmd[i])
 	{
-		if (env_remove(cmd[i], &env))
+		if (ft_strcmp("_", cmd[i]) != 0 && env_remove(cmd[i], env))
 			return (1);
 		i++;
 	}
 	return (0);
 }
 
-void	exec_builtin(char **cmd, t_env *env)
+void	exit_error(char *str)
+{
+	ft_putstr_fd("minishell> exit: ", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
+}
+
+int	exec_exit(char **cmd, t_env *env)
+{
+	int	exit_status;
+
+	exit_status = 0;
+	printf("exit\n");
+	if (cmd[1])
+	{
+		if (ft_isnumeric(cmd[1]))
+		{
+			if (cmd[2])
+				return (ft_putendl_fd("minishell> exit: too many arguments",
+						STDERR_FILENO), 1);
+			else
+				exit_status = ft_atoi(cmd[1]) % 255;
+		}
+		else
+		{
+			exit_error(cmd[1]);
+			exit_status = 2;
+		}
+	}
+	env_free(env);
+	exit(exit_status);
+}
+
+void	exec_builtin(char **cmd, t_env **env)
 {
 	if (ft_strcmp(cmd[0], "echo") == 0)
 		exec_echo(cmd);
@@ -197,9 +245,9 @@ void	exec_builtin(char **cmd, t_env *env)
 	else if (ft_strcmp(cmd[0], "unset") == 0)
 		exec_unset(cmd, env);
 	else if (ft_strcmp(cmd[0], "env") == 0)
-		exec_env(cmd, env);
-	// else if (ft_strcmp(cmd[0], "exit") == 0)
-	// 	exec_exit(cmd, env);
+		exec_env(cmd, *env);
+	else if (ft_strcmp(cmd[0], "exit") == 0)
+		exec_exit(cmd, *env);
 }
 
 int	is_builtin(char *cmd)

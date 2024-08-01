@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:30:27 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/29 18:13:07 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:04:32 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	env_var_add(t_env **head_env, t_env *new)
 	}
 }
 
-void	set_env_var(t_env *env, char *id, char *value)
+void	set_env_var(t_env **env, char *id, char *value)
 {
 	t_env	*var;
 	t_env	*new;
@@ -53,9 +53,9 @@ void	set_env_var(t_env *env, char *id, char *value)
 
 	new_value = ft_strdup(value);
 	if (!new_value)
-		return ;//(NULL);139 euros TTC (taxe de séjour incluse)
+		return ;//NULL
 
-	var = get_env_var(env, id);
+	var = get_env_var(*env, id);
 	if (var)
 	{
 		free(var->value);
@@ -69,7 +69,7 @@ void	set_env_var(t_env *env, char *id, char *value)
 		new->id = ft_strdup(id);
 		new->value = new_value;
 		new->next = NULL;
-		env_var_add(&(env), new);
+		env_var_add(env, new);
 	}
 }
 
@@ -113,6 +113,13 @@ t_env	*create_env_list(char **env)
 	}
 	return (env_list);
 }
+void node_free(t_env *node)
+{
+	free(node->id);
+	free(node->value);
+	free(node);
+}
+
 void	env_free(t_env *head)
 {
 	t_env	*tmp;
@@ -125,4 +132,14 @@ void	env_free(t_env *head)
 		free(tmp->value);
 		free(tmp);
 	}
+}
+
+void	cmd_free(char **cmd)
+{
+	int	i;
+
+	i = 0;
+	while (cmd[i])
+		free(cmd[i++]);
+	free(cmd);
 }
