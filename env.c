@@ -6,11 +6,24 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:30:27 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/07/31 14:04:32 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/08/02 15:06:17 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	env_lstsize(t_env *env)
+{
+	int		cnt;
+
+	cnt = 0;
+	while (env)
+	{
+		env = env->next;
+		cnt++;
+	}
+	return (cnt);
+}
 
 t_env	*get_env_var(t_env *env, char *var)
 {
@@ -87,8 +100,11 @@ t_env	*env_create(char *env_entry)
 		free(new_env);
 		return (NULL);
 	}
+	new_env->sum = ft_strdup(env_entry);
 	new_env->id = ft_strndup(env_entry, eq_sign - env_entry);
 	new_env->value = ft_strdup(eq_sign + 1);
+	if (!new_env->sum || !new_env || !new_env)
+		retunr (NULL);
 	new_env->next = NULL;
 	return (new_env);
 }

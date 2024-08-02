@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 16:52:19 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/08/01 16:25:26 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/08/02 14:33:19 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,7 @@ typedef struct s_env
 {
 	char			*id;
 	char			*value;
+	char			*sum;
 	struct s_env	*next;
 }				t_env;
 
@@ -137,6 +138,7 @@ t_env	*env_create(char *env_entry);
 t_env	*create_env_list(char **env);
 void	node_free(t_env *node);
 void	env_free(t_env *env_list);
+int		env_lstsize(t_env *env);
 
 //builtin functions
 int		is_builtin(char *cmd);
