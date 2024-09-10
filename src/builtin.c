@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:42:05 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/08/01 16:26:30 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/09/06 16:55:32 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int	is_n_flag(char *flag)
 	return (1);
 }
 
-void	exec_echo(char **cmd)
+void	exec_echo(t_cmd *cmd)
 {
 	int	i;
 	int	nl;
@@ -99,7 +99,7 @@ int	exec_pwd(char **cmd)
 	return (0);
 }
 
-void	exec_export(char **cmd, t_env **env)
+void	exec_export(t_cmd *cmd, t_env **env)
 {
 	int		i;
 	char	*eq_sign;
@@ -126,7 +126,7 @@ void	exec_export(char **cmd, t_env **env)
 
 }
 
-int	exec_cd(char **cmd, t_env **env)
+int	exec_cd(t_cmd *cmd, t_env **env)
 {
 	int		i;
 	t_env	*home_env;
@@ -177,6 +177,8 @@ int	env_remove(char	*arg, t_env **env)
 		pre_target = target;
 		target = target->next;
 	}
+	if (!target)
+		return (0);
 	if (target == *env)
 		*env = target->next;
 	else
@@ -185,7 +187,7 @@ int	env_remove(char	*arg, t_env **env)
 	return (1);
 }
 
-int	exec_unset(char **cmd, t_env **env)
+int	exec_unset(t_cmd *cmd, t_env **env)
 {
 	int	i;
 
@@ -206,7 +208,7 @@ void	exit_error(char *str)
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 }
 
-int	exec_exit(char **cmd, t_env *env)
+int	exec_exit(t_cmd *cmd, t_env *env)
 {
 	int	exit_status;
 
@@ -232,25 +234,25 @@ int	exec_exit(char **cmd, t_env *env)
 	exit(exit_status);
 }
 
-void	exec_builtin(char **cmd, t_env **env)
+void	exec_builtin(t_cmd *cmd, t_env **env)
 {
-	if (ft_strcmp(cmd[0], "echo") == 0)
+	if (ft_strcmp(cmd->name, "echo") == 0)
 		exec_echo(cmd);
-	else if (ft_strcmp(cmd[0], "cd") == 0)
+	else if (ft_strcmp(cmd->name, "cd") == 0)
 		exec_cd(cmd, env);
-	else if (ft_strcmp(cmd[0], "pwd") == 0)
+	else if (ft_strcmp(cmd->name, "pwd") == 0)
 		exec_pwd(cmd);
-	else if (ft_strcmp(cmd[0], "export") == 0)
+	else if (ft_strcmp(cmd->name, "export") == 0)
 		exec_export(cmd, env);
-	else if (ft_strcmp(cmd[0], "unset") == 0)
+	else if (ft_strcmp(cmd->name, "unset") == 0)
 		exec_unset(cmd, env);
-	else if (ft_strcmp(cmd[0], "env") == 0)
+	else if (ft_strcmp(cmd->name, "env") == 0)
 		exec_env(cmd, *env);
-	else if (ft_strcmp(cmd[0], "exit") == 0)
+	else if (ft_strcmp(cmd->name, "exit") == 0)
 		exec_exit(cmd, *env);
 }
 
-int	is_builtin(char *cmd)
+int	is_builtin(t_cmd *cmd)
 {
 	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0
 		|| ft_strcmp(cmd, "pwd") == 0 || ft_strcmp(cmd, "export") == 0

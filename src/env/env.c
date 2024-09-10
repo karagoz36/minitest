@@ -6,7 +6,7 @@
 /*   By: tkaragoz <tkaragoz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:30:27 by tkaragoz          #+#    #+#             */
-/*   Updated: 2024/08/02 15:06:17 by tkaragoz         ###   ########.fr       */
+/*   Updated: 2024/09/10 16:54:06 by tkaragoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ t_env	*env_create(char *env_entry)
 	new_env->id = ft_strndup(env_entry, eq_sign - env_entry);
 	new_env->value = ft_strdup(eq_sign + 1);
 	if (!new_env->sum || !new_env || !new_env)
-		retunr (NULL);
+		return (NULL);
 	new_env->next = NULL;
 	return (new_env);
 }
@@ -133,6 +133,7 @@ void node_free(t_env *node)
 {
 	free(node->id);
 	free(node->value);
+	free(node->sum);
 	free(node);
 }
 
@@ -144,9 +145,7 @@ void	env_free(t_env *head)
 	{
 		tmp = head;
 		head = head->next;
-		free(tmp->id);
-		free(tmp->value);
-		free(tmp);
+		node_free(tmp);
 	}
 }
 
